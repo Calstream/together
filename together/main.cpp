@@ -29,7 +29,7 @@ public:
 	vector<vector<pair<int,int>>> adj; // ind - from, first - to, second - weight
 	vector<edge> edges;
 	vector<int> distances; // 0 to all
-	vector<bool> used; // for dijkstra
+	vector<bool> used; // for dijkstra and bfs
 	vector<bool> in_spt;
 	vector<int> labs;
 	vector<long long> masks;
@@ -74,7 +74,6 @@ public:
 		for (int i = 1; i < v; i++)
 			distances[i] = INT_MAX;
 		distances[0] = 0;
-		////
 		vector<int> p(v);
 		for (int i = 0; i < v; ++i) {
 			int curr = -1;
@@ -94,7 +93,6 @@ public:
 				}
 			}
 		}
-		/////
 	}
 
 	void make_spt()
@@ -114,7 +112,6 @@ public:
 			{
 				edge t = edge(edges[i].v2, edges[i].v1, edges[i].w);
 				reverse.emplace_back(t);
-				//ind0[edges[i].v1] = false;
 				adj_rev[edges[i].v2].push_back(edges[i].v1);
 			}
 	}
@@ -131,7 +128,7 @@ public:
 			while (!q.empty()) {
 				int cur = q.front();
 				q.pop();
-				masks[cur] |= 1LL << l; //
+				masks[cur] |= 1LL << l;
 				for (size_t i = 0; i < adj_rev[cur].size(); ++i) 
 				{
 					int to = adj_rev[cur][i];
@@ -146,10 +143,10 @@ public:
 		}
 	}
 
-	int get_res()
+	int get_res() // out << 0: no loop || masks are < everyone || all distances == 0
 	{
 		int res = 0;
-		int everyone = pow(2, f) - 1;
+		long long everyone = pow(2, f) - 1;
 		for (int i = 0; i < v; i++)
 		{
 			if (masks[i] == everyone)
@@ -158,10 +155,6 @@ public:
 				//res += distances[i];
 		}
 		return res;
-		ofstream output;
-		output.open(oname);
-		output << res;
-		output.close();
 	}
 
 };
@@ -178,7 +171,6 @@ int main()
 	output.open(oname);
 	output << res;
 	output.close();
-	//getchar();
 }
 // f - num of friends
 // 1111111 = 2^f - 1
