@@ -1,13 +1,14 @@
 #include<fstream>
 #include<vector>
 #include<list>
-#include<stack>
 #include<algorithm>
-#include<climits>
 #include<queue>
+#include<cmath>
+#include<climits>
+
 using namespace std;
 
-string const iname = "in.txt";
+string const iname = "input.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -49,7 +50,6 @@ public:
 		labs.resize(f);
 		in_spt.resize(e*2);
 		masks.resize(v);
-		//ind0.reserve(v);
 		for (int i = 0; i < f; i++)
 			input >> labs[i];
 		for (int i = 0; i < e; i++)
@@ -131,6 +131,7 @@ public:
 			while (!q.empty()) {
 				int cur = q.front();
 				q.pop();
+				masks[cur] |= 1LL << l; //
 				for (size_t i = 0; i < adj_rev[cur].size(); ++i) 
 				{
 					int to = adj_rev[cur][i];
@@ -144,6 +145,25 @@ public:
 			}
 		}
 	}
+
+	int get_res()
+	{
+		int res = 0;
+		int everyone = pow(2, f) - 1;
+		for (int i = 0; i < v; i++)
+		{
+			if (masks[i] == everyone)
+				if (distances[i] > res)
+					res = distances[i];
+				//res += distances[i];
+		}
+		return res;
+		ofstream output;
+		output.open(oname);
+		output << res;
+		output.close();
+	}
+
 };
 
 int main()
@@ -153,5 +173,14 @@ int main()
 	graph.make_spt();
 	graph.make_reverse();
 	graph.set_masks();
-	getchar();
+	int res = graph.get_res();
+	ofstream output;
+	output.open(oname);
+	output << res;
+	output.close();
+	//getchar();
 }
+// f - num of friends
+// 1111111 = 2^f - 1
+// <----->
+//	  f
