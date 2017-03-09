@@ -4,6 +4,7 @@
 #include<stack>
 #include<algorithm>
 #include<climits>
+#include<queue>
 using namespace std;
 
 string const iname = "in.txt";
@@ -30,8 +31,10 @@ public:
 	vector<bool> used; // for dijkstra
 	vector<bool> in_spt;
 	vector<int> labs;
-	long long mask;
+	vector<long long> masks;
 	vector<edge> reverse;
+	vector<int> ind0;
+	vector<vector<int>> adj_rev;
 	Graph()
 	{
 		ifstream input;
@@ -40,10 +43,13 @@ public:
 		input >> e;
 		input >> f;
 		adj.resize(v);
+		adj_rev.resize(v);
 		used.resize(v);
 		distances.resize(v);
 		labs.resize(f);
 		in_spt.resize(e*2);
+		masks.resize(v);
+		//ind0.reserve(v);
 		for (int i = 0; i < f; i++)
 			input >> labs[i];
 		for (int i = 0; i < e; i++)
@@ -108,7 +114,35 @@ public:
 			{
 				edge t = edge(edges[i].v2, edges[i].v1, edges[i].w);
 				reverse.emplace_back(t);
+				//ind0[edges[i].v1] = false;
+				adj_rev[edges[i].v2].push_back(edges[i].v1);
 			}
+	}
+
+	void set_masks()
+	{
+		for (int l = 0; l < f; l++)
+		{
+			queue<int> q;
+			q.push(labs[l]);
+			for (int j = 0; j < v; j++)
+				used[j] = false;
+			used[labs[l]] = true;
+			while (!q.empty()) {
+				int cur = q.front();
+				q.pop();
+				for (size_t i = 0; i < adj_rev[cur].size(); ++i) 
+				{
+					int to = adj_rev[cur][i];
+					if (!used[to]) 
+					{
+						used[to] = true;
+						masks[to] |= 1LL << l;
+						q.push(to);
+					}
+				}
+			}
+		}
 	}
 };
 
@@ -118,5 +152,6 @@ int main()
 	graph.dijkstra();
 	graph.make_spt();
 	graph.make_reverse();
+	graph.set_masks();
 	getchar();
 }
