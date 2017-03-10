@@ -34,7 +34,6 @@ public:
 	vector<int> labs;
 	vector<long long> masks;
 	vector<edge> reverse;
-	vector<int> ind0;
 	vector<vector<int>> adj_rev;
 	Graph()
 	{
@@ -48,8 +47,11 @@ public:
 		used.resize(v);
 		distances.resize(v);
 		labs.resize(f);
-		in_spt.resize(e*2);
+		in_spt.resize(e*2); // in shortest path tree
 		masks.resize(v);
+
+		for (int i = 0; i < e * 2; i++)
+			in_spt[i] = false;
 		for (int i = 0; i < f; i++)
 			input >> labs[i];
 		for (int i = 0; i < e; i++)
@@ -74,7 +76,6 @@ public:
 		for (int i = 1; i < v; i++)
 			distances[i] = INT_MAX;
 		distances[0] = 0;
-		vector<int> p(v);
 		for (int i = 0; i < v; ++i) {
 			int curr = -1;
 			for (int j = 0; j < v; ++j)
@@ -89,17 +90,13 @@ public:
 					len = adj[curr][j].second;
 				if (distances[curr] + len < distances[to]) {
 					distances[to] = distances[curr] + len;
-					p[to] = curr;
 				}
 			}
 		}
 	}
 
 	void make_spt()
-	{	
-		for (int i = 0; i < e*2; i++)
-			in_spt[i] = false;
-
+	{
 		for (int i = 0; i < e*2; i++)
 			if (distances[edges[i].v2] == distances[edges[i].v1] + edges[i].w)
 				in_spt[i] = true;
@@ -116,7 +113,7 @@ public:
 			}
 	}
 
-	void set_masks()
+	void set_masks() // bfs
 	{
 		for (int l = 0; l < f; l++)
 		{
@@ -143,7 +140,7 @@ public:
 		}
 	}
 
-	int get_res() // out << 0: no loop || masks are < everyone || all distances == 0
+	int get_res()
 	{
 		int res = 0;
 		long long everyone = pow(2, f) - 1;
@@ -152,7 +149,6 @@ public:
 			if (masks[i] == everyone)
 				if (distances[i] > res)
 					res = distances[i];
-				//res += distances[i];
 		}
 		return res;
 	}
